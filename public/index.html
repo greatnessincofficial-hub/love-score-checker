@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Love Insurance Kompany</title>
+<style>
+body{font-family:sans-serif;max-width:600px;margin:40px auto;padding:0 20px;background:#fff0f5;color:#333}
+h1{color:#c0395a}
+textarea{width:100%;height:180px;padding:12px;border:1px solid #f4c0d1;border-radius:8px;font-size:14px;box-sizing:border-box}
+button{background:#d4537e;color:white;border:none;padding:12px 28px;border-radius:8px;font-size:15px;cursor:pointer;margin-top:12px}
+#results{margin-top:24px;background:white;border-radius:12px;padding:20px;border:1px solid #f4c0d1;display:none}
+.score-big{font-size:64px;font-weight:bold;color:#d4537e;text-align:center}
+.verdict{text-align:center;font-size:20px}
+.sub{text-align:center;color:#888;margin-bottom:16px}
+.signal{margin:8px 0}
+.signal-label{font-size:13px;color:#666}
+.bar-bg{background:#f4c0d1;border-radius:4px;height:8px;margin-top:4px}
+.bar-fill{background:#d4537e;height:8px;border-radius:4px}
+.insight{margin-top:16px;background:#fff0f5;border-left:3px solid #d4537e;padding:10px 14px;font-size:13px;color:#555;line-height:1.6}
+#status{color:#888;font-size:14px;margin-top:8px}
+</style>
+</head>
+<body>
+<h1>Love Insurance Kompany</h1>
+<p>Paste a chat below and we will scan it for love signals.</p>
+<textarea id="chatInput" placeholder="Paste your chat here..."></textarea>
+<br>
+<button onclick="analyze()">Analyse Love Score</button>
+<p id="status"></p>
+<div id="results">
+  <div class="score-big" id="scoreNum">--</div>
+  <div class="verdict" id="verdict"></div>
+  <div class="sub" id="sub"></div>
+  <div id="signals"></div>
+  <div class="insight" id="insight"></div>
+</div>
+<script>
+async function analyze() {
+  const chat = document.getElementById('chatInput').value;
+  if (!chat.trim()) { alert('Paste a chat first!'); return; }
+  document.getElementById('status').textContent = 'Scanning for love signals...';
+  document.getElementById('results').style.display = 'none';
+  try {
+    const res = await fetch('/analyze', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ chat })
+    });
+    const data = await res.json();
+    const p = JSON.parse(data.result);
+    document.getElementById('scoreNum').textContent = p.score + '/100';
+    document.getElementById('verdict').textContent = p.verdict;
+    document.getElementById('sub').textContent = p.sub;
+    document.getElementById('insight').textContent = p.insight;
+    document.getElementById('signals').innerHTML = Object.entries(p.signals).map(([k,v]) =>
+      '<div class="signal"><div class="signal-label">' + k + ' - ' + v + '%</div><div class="bar-bg"><div class="bar-fill" style="width:' + v + '%"></div></div></div>'
+    ).join('');
+    document.getElementById('results').style.display = 'block';
+    document.getElementById('status').textContent = '';
+  } catch(err) {
+    document.getElementById('status').textContent = 'Something went wrong.';
+  }
+}
+</script>
+</body>
+</html>
