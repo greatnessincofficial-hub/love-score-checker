@@ -26,6 +26,6 @@ app.post('/analyze', async (req, res) => {
   }
 });
 
-app.listen(3000, () => {
+app.listen(process.env.PORT || 3000, () => {
   console.log('Running at http://localhost:3000');
 });
